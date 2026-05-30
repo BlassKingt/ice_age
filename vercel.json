@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/ice/(.*)", "destination": "/index.html" }
+  ]
+}
