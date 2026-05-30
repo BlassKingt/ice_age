@@ -1,72 +1,87 @@
-# Ice Survival Demo / 冰川逃亡
+# 冰川逃亡 / Ice Survival Demo
 
-一个还在快速迭代的网页小游戏 Demo。你在冰川地图里收集资源、卖钱、扩建避难所，然后想办法顶住越来越乱的局面。
+我做了个冰川逃亡小游戏 v0.1。
 
-This is a small browser game demo about surviving on a frozen map: gather resources, sell them, expand the shelter, and survive the incoming chaos.
+现在它还很早期，但已经能玩：砍树、捡肉、卖资源、扩建避难所，然后看着熊一点点压过来。欢迎来试玩，也欢迎顺手吐槽一下：哪里槽点多、哪里卡、哪里应该更刺激、下一版最该加什么。
 
-## 在线试玩 / Play
+重点是这个反馈表：
 
-- 试玩地址 / Live demo: <https://ice.minitechs.xyz/>
-- 反馈表 / Feedback form: <https://my.feishu.cn/share/base/form/shrcnvK0cCnI1zJpEPzrIMZMgcc>
-- MiniTechs 主页 / Hub: <https://www.minitechs.xyz/>
+<https://my.feishu.cn/share/base/form/shrcnvK0cCnI1zJpEPzrIMZMgcc>
 
-## 现在能玩什么 / What You Can Do
+我会从反馈里挑 1-2 条，做进下一版。
 
-- 点击或拖动，让角色移动。
-- 砍树、捡肉、收集资源。
-- 把资源送到店铺，换成金币。
-- 用金币和资源扩建避难所。
-- 解锁新区域和新资源点。
-- 处理不断靠近的熊，别让避难所太快崩掉。
+This is a tiny public v0.1 browser game. Try it, poke at it, roast the rough parts, and tell me what should become v0.2.
 
-In short: move, gather, sell, expand, unlock, and defend.
+## 在线试玩
 
-## 为什么做这个 / Why This Exists
+- 直接玩：<https://ice.minitechs.xyz/>
+- 提建议 / 吐槽入口：<https://my.feishu.cn/share/base/form/shrcnvK0cCnI1zJpEPzrIMZMgcc>
+- MiniTechs 主页：<https://www.minitechs.xyz/>
 
-这是一个公开 v0.1 Demo，还很粗糙，但已经可以玩出基础循环了。
+游戏页面里也有“提建议”按钮。桌面端在画面旁边，手机端在底部。
 
-我想用它做一个轻量实验：先把一个不完美的小版本放出来，然后根据真实试玩反馈继续改。  
-如果你觉得哪里无聊、别扭、太慢、太乱，或者反而有点好笑，都可以直接提建议。
+## 现在长这样
 
-This is a public v0.1 demo. It is intentionally small and a little rough. The fun part is seeing what should change next based on real feedback.
+![冰川逃亡 v0.1 初始画面](docs/images/v0.1-initial.png)
 
-## 本地运行 / Local Development
+页面里的“提建议”入口是这轮实验的核心：玩完不用写长评，直接点进去说一句也行。
+
+![冰川逃亡 v0.1 提建议入口](docs/images/v0.1-feedback-entry.png)
+
+## 怎么玩
+
+- 鼠标点击哪里，角色就往哪里走。
+- 鼠标按住拖动，也可以持续改变移动方向。
+- 手机上可以直接触屏点按 / 拖动控制。
+- 靠近树、肉、矿石会自动收集。
+- 靠近店铺会自动卸货、卖资源。
+- 靠近扩建点会自动投入金币。
+- 熊会往避难所方向靠近，别让局面太快崩掉。
+
+一句话：点哪走哪，靠近东西就自动干活。
+
+## 这不是成品
+
+它现在不是一个“正式上线大作”，更像一个公开小实验：
+
+1. 先把粗糙但能玩的 v0.1 放出来。
+2. 让大家直接玩、直接吐槽、直接提点子。
+3. 挑 1-2 条建议做成 v0.2。
+4. 再把改动过程发出来。
+
+如果你想看更离谱一点的玩法，比如熊更凶、资源搬运更爽、失败动画更夸张、角色更聪明，都可以往问卷里扔。
+
+## 后面想试什么
+
+- 让反馈真的进入 v0.2，而不是停在“谢谢建议”。
+- 加一点更强的冲突感，比如更明确的熊群压力和失败反馈。
+- 试试把 AI 放进来，让角色自己找资源、躲危险、做决策。
+- 往沙盒观察方向靠一点：不是只让玩家操作，也能看 AI 小人在里面自己折腾。
+
+## 本地运行
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open:
+打开：
 
 ```text
 http://127.0.0.1:5173/
 ```
 
-Promo capture mode:
+宣传录制模式：
 
 ```text
 http://127.0.0.1:5173/?mode=promo
 ```
 
-`?mode=promo` 只用于录制展示素材，不是普通玩家入口。
+`?mode=promo` 只是用来录展示素材，不是普通试玩入口。
 
-## 常用命令 / Scripts
+## 常用命令
 
 ```bash
 npm test
 npm run build
 ```
-
-## 当前版本说明 / Current Notes
-
-- v0.1 重点是跑通基础玩法循环。
-- 桌面端体验更稳，手机端可以打开但还不是主要优化目标。
-- 欢迎反馈玩法想法、节奏问题、bug、操作别扭点，或者任何“这个地方应该更夸张一点”的建议。
-
-## 后续可能会改 / Possible Next Steps
-
-- 更清楚的失败反馈和阶段目标。
-- 更有冲击感的熊群压力。
-- 更顺手的资源搬运和卸货体验。
-- 根据反馈加入 1-2 个小机制，做成下一版。
