@@ -80,3 +80,10 @@ http://127.0.0.1:5173/?mode=promo
 ```
 
 `?mode=promo` 只是用来演示玩法，不是普通试玩入口。
+
+## 常用命令
+
+```bash
+npm test
+npm run build
+```
