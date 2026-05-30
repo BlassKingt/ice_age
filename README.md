@@ -1,21 +1,23 @@
-# 冰川逃亡 / Ice Survival Demo
+# 冰川逃亡 / Glacier Escape Demo
 
-我做了个冰川逃亡小游戏 v0.1。
+我做了个"冰川逃亡小游戏 v0.1"。
 
-现在它还很早期，但已经能玩：砍树、捡肉、卖资源、扩建避难所，然后看着熊一点点压过来。欢迎来试玩，也欢迎顺手吐槽一下：哪里槽点多、哪里卡、哪里应该更刺激、下一版最该加什么。
+现在它还很早期，但已经能玩：砍树、捡肉、卖资源、扩建避难所，然后看着熊一点点压过来。
+
+欢迎来试玩，也欢迎顺手吐槽一下：哪里槽点多、哪里卡、哪里应该更刺激、下一版最该加什么。
 
 重点是这个反馈表：
 
 <https://my.feishu.cn/share/base/form/shrcnvK0cCnI1zJpEPzrIMZMgcc>
 
-我会从反馈里挑 1-2 条，做进下一版。
+我会从反馈里挑 1-2 条票数最高的，做进下一版，迭代周期1~2天。
 
 This is a tiny public v0.1 browser game. Try it, poke at it, roast the rough parts, and tell me what should become v0.2.
 
 ## 在线试玩
 
-- 直接玩：<https://ice.minitechs.xyz/>
-- 提建议 / 吐槽入口：<https://my.feishu.cn/share/base/form/shrcnvK0cCnI1zJpEPzrIMZMgcc>
+- 直接玩 Try the Game：<https://ice.minitechs.xyz/>
+- 提建议 / 吐槽入口 Feedback：<https://my.feishu.cn/share/base/form/shrcnvK0cCnI1zJpEPzrIMZMgcc>
 - MiniTechs 主页：<https://www.minitechs.xyz/>
 
 游戏页面里也有“提建议”按钮。桌面端在画面旁边，手机端在底部。
@@ -46,14 +48,14 @@ This is a tiny public v0.1 browser game. Try it, poke at it, roast the rough par
 
 1. 先把粗糙但能玩的 v0.1 放出来。
 2. 让大家直接玩、直接吐槽、直接提点子。
-3. 挑 1-2 条建议做成 v0.2。
+3. 挑 1-2 条高票建议做成 v0.2。
 4. 再把改动过程发出来。
 
 如果你想看更离谱一点的玩法，比如熊更凶、资源搬运更爽、失败动画更夸张、角色更聪明，都可以往问卷里扔。
 
 ## 后面想试什么
 
-- 让反馈真的进入 v0.2，而不是停在“谢谢建议”。
+- 除了修bug，让反馈真的进入 v0.2，而不是停在“谢谢建议”。
 - 加一点更强的冲突感，比如更明确的熊群压力和失败反馈。
 - 试试把 AI 放进来，让角色自己找资源、躲危险、做决策。
 - 往沙盒观察方向靠一点：不是只让玩家操作，也能看 AI 小人在里面自己折腾。
@@ -77,11 +79,4 @@ http://127.0.0.1:5173/
 http://127.0.0.1:5173/?mode=promo
 ```
 
-`?mode=promo` 只是用来录展示素材，不是普通试玩入口。
-
-## 常用命令
-
-```bash
-npm test
-npm run build
-```
+`?mode=promo` 只是用来演示玩法，不是普通试玩入口。
