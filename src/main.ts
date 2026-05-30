@@ -31,6 +31,15 @@ const SHELTER_ATTACK_POINT = { x: SHELTER_CENTER_X, y: 610 };
 
 type Point = { x: number; y: number };
 
+const PROMO_WAYPOINTS: Point[] = [
+  { x: 500, y: 230 },
+  { x: 420, y: 410 },
+  { x: SHELTER_ATTACK_POINT.x, y: SHELTER_ATTACK_POINT.y },
+  { x: 170, y: 845 },
+  { x: 610, y: 300 },
+  { x: 360, y: 610 }
+];
+
 type TreeView = {
   id: string;
   x: number;
@@ -111,6 +120,10 @@ class IceAgeScene extends Phaser.Scene {
   private bears: BearView[] = [];
   private workerSprites: Partial<Record<ShopKind, Phaser.GameObjects.Container>> = {};
   private turret?: Phaser.GameObjects.Container;
+  private promoMode = false;
+  private promoStartedAt = 0;
+  private promoWaypointIndex = 0;
+  private promoCaptionShown = false;
   private axeAngle = 0;
   private axeLevel = 1;
   private lastHarvest = 0;
@@ -126,23 +139,26 @@ class IceAgeScene extends Phaser.Scene {
 
   create(): void {
     this.state = createInitialState();
+    this.promoMode = new URLSearchParams(window.location.search).get("mode") === "promo";
     createFallbackTextures(this);
     this.drawWorld();
     this.createPlayer();
+    this.configurePromoMode();
     this.configureCamera();
     this.createUi();
     this.createMeatGuideArrow();
 
-    this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => this.setTarget(pointer));
+    this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => this.setTargetFromPointer(pointer));
     this.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
       if (pointer.isDown) {
-        this.setTarget(pointer);
+        this.setTargetFromPointer(pointer);
       }
     });
   }
 
   update(time: number, deltaMs: number): void {
     const delta = deltaMs / 1000;
+    this.updatePromoMode(time);
     this.movePlayer(delta);
     this.updateAxes(time);
     this.handleHarvest(time);
@@ -450,8 +466,65 @@ class IceAgeScene extends Phaser.Scene {
     this.meatGuideArrow?.setVisible(show);
   }
 
-  private setTarget(pointer: Phaser.Input.Pointer): void {
-    this.target = { x: pointer.worldX, y: pointer.worldY };
+  private setTargetFromPointer(pointer: Phaser.Input.Pointer): void {
+    this.setTarget({ x: pointer.worldX, y: pointer.worldY });
+  }
+
+  private setTarget(point: Point): void {
+    this.target = point;
+  }
+
+  private configurePromoMode(): void {
+    if (!this.promoMode) {
+      return;
+    }
+
+    this.axeLevel = 2;
+    this.state.player.wood = 4;
+    this.state.player.meat = 2;
+    this.state.player.coin = 4;
+    this.lastBearSpawn = -2500;
+    this.target = PROMO_WAYPOINTS[0];
+  }
+
+  private updatePromoMode(time: number): void {
+    if (!this.promoMode) {
+      return;
+    }
+
+    if (this.promoStartedAt === 0) {
+      this.promoStartedAt = time;
+    }
+
+    if (!this.promoCaptionShown && time - this.promoStartedAt > 450) {
+      this.promoCaptionShown = true;
+      this.floatText(this.player.x, this.player.y - 88, "宣传演示：自动冲突路线", "#ffffff");
+    }
+
+    const closestBear = this.findClosestBear();
+    if (closestBear && Phaser.Math.Distance.Between(this.player.x, this.player.y, closestBear.body.x, closestBear.body.y) < 260) {
+      this.setTarget({ x: closestBear.body.x, y: closestBear.body.y });
+      return;
+    }
+
+    const waypoint = PROMO_WAYPOINTS[this.promoWaypointIndex % PROMO_WAYPOINTS.length];
+    this.setTarget(waypoint);
+    if (Phaser.Math.Distance.Between(this.player.x, this.player.y, waypoint.x, waypoint.y) < 54) {
+      this.promoWaypointIndex += 1;
+    }
+  }
+
+  private findClosestBear(): BearView | undefined {
+    let closest: BearView | undefined;
+    let closestDistance = Number.POSITIVE_INFINITY;
+    for (const bear of this.bears) {
+      const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, bear.body.x, bear.body.y);
+      if (distance < closestDistance) {
+        closest = bear;
+        closestDistance = distance;
+      }
+    }
+    return closest;
   }
 
   private movePlayer(delta: number): void {
@@ -718,10 +791,15 @@ class IceAgeScene extends Phaser.Scene {
   }
 
   private updateBears(time: number, delta: number): void {
-    const spawnDelay = this.state.expansions.mine ? 3600 : this.state.expansions.shelter ? 4800 : 6200;
+    const spawnDelay = this.promoMode ? 2300 : this.state.expansions.mine ? 3600 : this.state.expansions.shelter ? 4800 : 6200;
     if (time - this.lastBearSpawn > spawnDelay) {
       this.lastBearSpawn = time;
-      this.spawnBear(this.state.expansions.mine ? 700 : 25, this.state.expansions.mine ? 420 : 450);
+      if (this.promoMode) {
+        const fromRight = Math.floor(time / spawnDelay) % 2 === 0;
+        this.spawnBear(fromRight ? 700 : 25, fromRight ? 455 : 505);
+      } else {
+        this.spawnBear(this.state.expansions.mine ? 700 : 25, this.state.expansions.mine ? 420 : 450);
+      }
     }
 
     for (const bear of [...this.bears]) {
