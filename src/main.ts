@@ -344,9 +344,9 @@ class IceAgeScene extends Phaser.Scene {
   }
 
   private makeUpgradePads(): void {
-    this.addBuildPoint("axe", 360, 1138, "斧头升级", 10, 3, () => {
+    this.addBuildPoint("axe", 360, 690, "斧头升级", 10, 3, () => {
       this.axeLevel += 1;
-      this.floatText(360, 1100, "斧头变多/更快", "#ffffff");
+      this.floatText(360, 652, "斧头变多/更快", "#ffffff");
     });
     this.addBuildPoint("meat-shop", shopLayouts.meat.shop.x, shopLayouts.meat.shop.y, "肉铺开张", 6, 1, () => {
       this.state.shops.meat.unlocked = true;
@@ -1092,6 +1092,7 @@ class IceAgeScene extends Phaser.Scene {
     const layout = shopLayouts[kind];
     const worker = this.add.container(layout.workerPoint.x, layout.workerPoint.y);
     worker.add(this.add.image(0, 0, TextureKey.worker));
+    worker.add(this.makeResourceToken(kind, 18, -20, 0.42));
     this.workerSprites[kind] = worker;
   }
 

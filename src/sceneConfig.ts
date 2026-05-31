@@ -17,7 +17,7 @@ export const shopLayouts: Record<ShopKind, ShopLayout> = {
     unloadPoint: { x: 170, y: 845 },
     stockPile: { x: 132, y: 785 },
     coinPile: { x: 208, y: 785 },
-    workerPoint: { x: 120, y: 945 },
+    workerPoint: { x: 92, y: 845 },
     queueStart: { x: 170, y: 610 }
   },
   meat: {
@@ -25,7 +25,7 @@ export const shopLayouts: Record<ShopKind, ShopLayout> = {
     unloadPoint: { x: 575, y: 820 },
     stockPile: { x: 650, y: 750 },
     coinPile: { x: 650, y: 890 },
-    workerPoint: { x: 575, y: 920 },
+    workerPoint: { x: 575, y: 890 },
     queueStart: { x: 650, y: 980 }
   },
   ore: {
@@ -33,7 +33,7 @@ export const shopLayouts: Record<ShopKind, ShopLayout> = {
     unloadPoint: { x: 550, y: 845 },
     stockPile: { x: 512, y: 785 },
     coinPile: { x: 588, y: 785 },
-    workerPoint: { x: 600, y: 945 },
+    workerPoint: { x: 630, y: 845 },
     queueStart: { x: 550, y: 610 }
   }
 };
