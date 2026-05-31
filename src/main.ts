@@ -20,7 +20,7 @@ import {
 } from "./gameLogic";
 import { buildStackBlocks } from "./visualStack";
 import { createFallbackTextures, TextureKey } from "./visualAssets";
-import { shelterExpansion, shopLayouts, turretBase } from "./sceneConfig";
+import { shelterExpansion, shopLayouts, turretBases } from "./sceneConfig";
 
 const WORLD_WIDTH = 720;
 const WORLD_HEIGHT = 1320;
@@ -119,7 +119,7 @@ class IceAgeScene extends Phaser.Scene {
   private pickups: PickupView[] = [];
   private bears: BearView[] = [];
   private workerSprites: Partial<Record<ShopKind, Phaser.GameObjects.Container>> = {};
-  private turret?: Phaser.GameObjects.Container;
+  private turrets: Phaser.GameObjects.Container[] = [];
   private promoMode = false;
   private promoStartedAt = 0;
   private promoWaypointIndex = 0;
@@ -344,9 +344,9 @@ class IceAgeScene extends Phaser.Scene {
   }
 
   private makeUpgradePads(): void {
-    this.addBuildPoint("axe", 112, 1190, "斧头升级", 10, 3, () => {
+    this.addBuildPoint("axe", 360, 1138, "斧头升级", 10, 3, () => {
       this.axeLevel += 1;
-      this.floatText(112, 1152, "斧头变多/更快", "#ffffff");
+      this.floatText(360, 1100, "斧头变多/更快", "#ffffff");
     });
     this.addBuildPoint("meat-shop", shopLayouts.meat.shop.x, shopLayouts.meat.shop.y, "肉铺开张", 6, 1, () => {
       this.state.shops.meat.unlocked = true;
@@ -355,9 +355,13 @@ class IceAgeScene extends Phaser.Scene {
     this.addWorkerBuildPoint("wood");
     this.addWorkerBuildPoint("meat");
     this.addWorkerBuildPoint("ore");
-    this.addBuildPoint("turret", turretBase.x, turretBase.y, "建炮塔", 20, 1, () => {
-      this.createTurret();
-      this.floatText(turretBase.x, turretBase.y - 38, "炮塔升起", "#ffffff");
+    this.addBuildPoint("turret-left", turretBases.left.x, turretBases.left.y, "左线炮塔", 20, 1, () => {
+      this.createTurret(turretBases.left);
+      this.floatText(turretBases.left.x, turretBases.left.y - 38, "左线炮塔升起", "#ffffff");
+    });
+    this.addBuildPoint("turret-right", turretBases.right.x, turretBases.right.y, "右线炮塔", 20, 1, () => {
+      this.createTurret(turretBases.right);
+      this.floatText(turretBases.right.x, turretBases.right.y - 38, "右线炮塔升起", "#ffffff");
     });
   }
 
@@ -816,7 +820,7 @@ class IceAgeScene extends Phaser.Scene {
         damageShelter(this.state, 4);
         this.floatText(SHELTER_ATTACK_POINT.x, SHELTER_ATTACK_POINT.y - 30, "-4", "#ff6969");
       }
-      if (this.turret && Phaser.Math.Distance.Between(this.turret.x, this.turret.y, bear.body.x, bear.body.y) < 150) {
+      if (this.turrets.some((turret) => Phaser.Math.Distance.Between(turret.x, turret.y, bear.body.x, bear.body.y) < 150)) {
         bear.hp -= 0.045 * delta * 60;
       }
       bear.hpBar.width = Math.max(0, 34 * (bear.hp / bear.maxHp));
@@ -924,8 +928,8 @@ class IceAgeScene extends Phaser.Scene {
         worker.setDepth(worker.y);
       }
     }
-    if (this.turret) {
-      this.turret.setDepth(this.turret.y);
+    for (const turret of this.turrets) {
+      turret.setDepth(turret.y);
     }
   }
 
@@ -1086,9 +1090,10 @@ class IceAgeScene extends Phaser.Scene {
     this.workerSprites[kind] = worker;
   }
 
-  private createTurret(): void {
-    this.turret = this.add.container(turretBase.x, turretBase.y);
-    this.turret.add(this.add.image(0, 0, TextureKey.turret));
+  private createTurret(point: Point): void {
+    const turret = this.add.container(point.x, point.y);
+    turret.add(this.add.image(0, 0, TextureKey.turret));
+    this.turrets.push(turret);
   }
 
   private spawnDrops(x: number, y: number, drops: ResourceBundle): void {

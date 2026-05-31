@@ -38,7 +38,10 @@ export const shopLayouts: Record<ShopKind, ShopLayout> = {
   }
 };
 
-export const turretBase: ScenePoint = { x: 116, y: 520 };
+export const turretBases: Record<"left" | "right", ScenePoint> = {
+  left: { x: 116, y: 520 },
+  right: { x: 605, y: 500 }
+};
 
 export const shelterExpansion = {
   meatDebris: { x: 650, y: 820 },
