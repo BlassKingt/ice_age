@@ -552,10 +552,15 @@ class IceAgeScene extends Phaser.Scene {
   }
 
   private isBlockedByShelterWall(point: Point): boolean {
-    const inDoor = [shelterExpansion.topDoor, shelterExpansion.rightDoor, shelterExpansion.door].some((door) => {
-      return Math.abs(point.x - door.x) <= door.width / 2 && Math.abs(point.y - door.y) <= door.height / 2;
+    const bottomDoor = shelterExpansion.door;
+    const inBottomDoorCorridor =
+      Math.abs(point.x - bottomDoor.x) <= bottomDoor.width / 2 + 18 &&
+      point.y >= bottomDoor.y - 92 &&
+      point.y <= bottomDoor.y + bottomDoor.height / 2 + 28;
+    const inDoor = [shelterExpansion.topDoor, shelterExpansion.rightDoor, bottomDoor].some((door) => {
+      return Math.abs(point.x - door.x) <= door.width / 2 + 8 && Math.abs(point.y - door.y) <= door.height / 2 + 8;
     });
-    if (inDoor) {
+    if (inDoor || inBottomDoorCorridor) {
       return false;
     }
     return shelterExpansion.walls.some((wall) => {
