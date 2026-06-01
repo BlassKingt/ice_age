@@ -8,7 +8,7 @@
 
 重点是这个反馈表：
 
-<https://my.feishu.cn/share/base/form/shrcnvRBWYO2Gp4jAGGPFKIVOHb>
+<https://my.feishu.cn/share/base/form/shrcnfn9KV1BpJ5mNbOZXJNsBIe>
 
 我会从反馈里挑 1-2 条票数最高的，做进下一版，迭代周期1~2天。
 
@@ -17,7 +17,7 @@ This is a tiny public v0.1 browser game. Try it, poke at it, roast the rough par
 ## 在线试玩
 
 - 直接玩 Try the Game：<https://ice.minitechs.xyz/>
-- 提建议 / 吐槽入口 Feedback：<https://my.feishu.cn/share/base/form/shrcnvRBWYO2Gp4jAGGPFKIVOHb>
+- 提建议 / 吐槽入口 Feedback：<https://my.feishu.cn/share/base/form/shrcnfn9KV1BpJ5mNbOZXJNsBIe>
 - MiniTechs 主页：<https://www.minitechs.xyz/>
 
 游戏页面里也有“提建议”按钮。桌面端在画面旁边，手机端在底部。
