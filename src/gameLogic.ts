@@ -28,6 +28,7 @@ export type GameState = {
 };
 
 const emptyBundle = (): ResourceBundle => ({ wood: 0, meat: 0, ore: 0, coin: 0 });
+const workerCarryAmount: Record<ShopKind, number> = { wood: 2, meat: 1, ore: 1 };
 
 export function splitDropsIntoUnits(bundle: ResourceBundle): UnitDrop[] {
   const result: UnitDrop[] = [];
@@ -240,8 +241,20 @@ export function buyWorker(state: GameState, shop: ShopKind = "wood"): boolean {
 
 export function tickWorker(state: GameState, seconds: number): void {
   for (const worker of state.workers) {
-    processShop(state, worker.shop, seconds * 4);
-    worker.cycles += 1;
+    const shop = state.shops[worker.shop];
+    if (!shop.unlocked) {
+      continue;
+    }
+    worker.cycles += seconds;
+    const deliveries = Math.floor(worker.cycles);
+    if (deliveries <= 0) {
+      continue;
+    }
+    worker.cycles -= deliveries;
+    if (Math.abs(worker.cycles) < 0.0001) {
+      worker.cycles = 0;
+    }
+    shop.stock += deliveries * workerCarryAmount[worker.shop];
   }
 }
 

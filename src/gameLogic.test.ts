@@ -141,18 +141,29 @@ describe("ice age demo game logic", () => {
     expect(levelUpBuildPoint(state, "axe", 2)).toEqual({ level: 2, capped: true });
   });
 
-  it("hires a shop worker who helps a shop sell stock faster", () => {
+  it("hires a shop worker who carries matching resources into shop stock", () => {
     const state = createInitialState();
     state.player.coin = 20;
-    state.player.wood = 6;
-    depositAtShop(state, "wood");
 
     expect(buyWorker(state, "wood")).toBe(true);
     tickWorker(state, 1);
 
     expect(state.shops.wood.stock).toBe(2);
-    expect(state.shops.wood.coinPile).toBe(4);
-    expect(state.workers[0]).toMatchObject({ shop: "wood", cycles: 1 });
+    expect(state.shops.wood.coinPile).toBe(0);
+    expect(state.workers[0]).toMatchObject({ shop: "wood", cycles: 0 });
+  });
+
+  it("workers wait until a full carry cycle before delivering resources", () => {
+    const state = createInitialState();
+    state.player.coin = 20;
+
+    expect(buyWorker(state, "wood")).toBe(true);
+    tickWorker(state, 0.4);
+    expect(state.shops.wood.stock).toBe(0);
+
+    tickWorker(state, 0.6);
+    expect(state.shops.wood.stock).toBe(2);
+    expect(state.workers[0].cycles).toBe(0);
   });
 
   it("每个已解锁铺子最多雇佣一个工人，不能重复雇佣", () => {

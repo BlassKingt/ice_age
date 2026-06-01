@@ -20,7 +20,7 @@ import {
 } from "./gameLogic";
 import { buildStackBlocks } from "./visualStack";
 import { createFallbackTextures, TextureKey } from "./visualAssets";
-import { shelterExpansion, shopLayouts, turretBases } from "./sceneConfig";
+import { shelterExpansion, shopLayouts, turretBases, workerResourcePoints } from "./sceneConfig";
 
 const WORLD_WIDTH = 720;
 const WORLD_HEIGHT = 1320;
@@ -119,6 +119,7 @@ class IceAgeScene extends Phaser.Scene {
   private pickups: PickupView[] = [];
   private bears: BearView[] = [];
   private workerSprites: Partial<Record<ShopKind, Phaser.GameObjects.Container>> = {};
+  private workerLastStock: Partial<Record<ShopKind, number>> = {};
   private turrets: Phaser.GameObjects.Container[] = [];
   private promoMode = false;
   private promoStartedAt = 0;
@@ -344,9 +345,9 @@ class IceAgeScene extends Phaser.Scene {
   }
 
   private makeUpgradePads(): void {
-    this.addBuildPoint("axe", 360, 690, "斧头升级", 10, 3, () => {
+    this.addBuildPoint("axe", 360, 790, "斧头升级", 10, 3, () => {
       this.axeLevel += 1;
-      this.floatText(360, 652, "斧头变多/更快", "#ffffff");
+      this.floatText(360, 752, "斧头变多/更快", "#ffffff");
     });
     this.addBuildPoint("meat-shop", shopLayouts.meat.shop.x, shopLayouts.meat.shop.y, "肉铺开张", 6, 1, () => {
       this.state.shops.meat.unlocked = true;
@@ -782,6 +783,11 @@ class IceAgeScene extends Phaser.Scene {
   }
 
   private updateWorker(delta: number): void {
+    const stockBefore: Record<ShopKind, number> = {
+      wood: this.state.shops.wood.stock,
+      meat: this.state.shops.meat.stock,
+      ore: this.state.shops.ore.stock
+    };
     tickWorker(this.state, delta);
     for (const kind of Object.keys(this.workerSprites) as ShopKind[]) {
       const worker = this.workerSprites[kind];
@@ -789,13 +795,43 @@ class IceAgeScene extends Phaser.Scene {
         continue;
       }
       const layout = shopLayouts[kind];
+      const source = workerResourcePoints[kind];
       const t = (this.time.now / 1000) % 3;
       const p = (t % 1.5) / 1.5;
       const eased = t < 1.5 ? p : 1 - p;
       worker.setPosition(
-        Phaser.Math.Linear(layout.workerPoint.x, layout.stockPile.x, eased),
-        Phaser.Math.Linear(layout.workerPoint.y, layout.stockPile.y, eased)
+        Phaser.Math.Linear(source.x, layout.unloadPoint.x, eased),
+        Phaser.Math.Linear(source.y, layout.unloadPoint.y, eased)
       );
+      this.collectWorkerRoutePickups(worker);
+      const previousStock = this.workerLastStock[kind] ?? stockBefore[kind];
+      const currentStock = this.state.shops[kind].stock;
+      if (currentStock > previousStock) {
+        this.flyResource(kind, Math.min(currentStock - previousStock, 8), { x: worker.x, y: worker.y - 18 }, layout.stockPile);
+        this.floatText(layout.unloadPoint.x, layout.unloadPoint.y - 34, `工人送货 +${currentStock - previousStock}`, "#ffffff");
+        this.burst(layout.stockPile.x, layout.stockPile.y, this.resourceColor(kind));
+      }
+      this.workerLastStock[kind] = currentStock;
+    }
+  }
+
+  private collectWorkerRoutePickups(worker: Phaser.GameObjects.Container): void {
+    for (const pickup of [...this.pickups]) {
+      if (pickup.resource === "coin") {
+        continue;
+      }
+      const kind = pickup.resource;
+      if (Phaser.Math.Distance.Between(worker.x, worker.y, pickup.icon.x, pickup.icon.y) > 42) {
+        continue;
+      }
+      if (!this.state.shops[kind].unlocked) {
+        continue;
+      }
+      this.state.shops[kind].stock += pickup.amount;
+      this.flyResource(kind, pickup.amount, { x: pickup.icon.x, y: pickup.icon.y }, shopLayouts[kind].stockPile);
+      this.floatText(pickup.icon.x, pickup.icon.y - 28, `工人搬走 +${pickup.amount}`, "#ffffff");
+      pickup.icon.destroy();
+      this.pickups = this.pickups.filter((item) => item !== pickup);
     }
   }
 
@@ -1089,11 +1125,12 @@ class IceAgeScene extends Phaser.Scene {
   }
 
   private createWorker(kind: ShopKind): void {
-    const layout = shopLayouts[kind];
-    const worker = this.add.container(layout.workerPoint.x, layout.workerPoint.y);
+    const source = workerResourcePoints[kind];
+    const worker = this.add.container(source.x, source.y);
     worker.add(this.add.image(0, 0, TextureKey.worker));
     worker.add(this.makeResourceToken(kind, 18, -20, 0.42));
     this.workerSprites[kind] = worker;
+    this.workerLastStock[kind] = this.state.shops[kind].stock;
   }
 
   private createTurret(point: Point): void {

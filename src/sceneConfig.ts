@@ -17,25 +17,31 @@ export const shopLayouts: Record<ShopKind, ShopLayout> = {
     unloadPoint: { x: 170, y: 845 },
     stockPile: { x: 132, y: 785 },
     coinPile: { x: 208, y: 785 },
-    workerPoint: { x: 92, y: 845 },
+    workerPoint: { x: 82, y: 910 },
     queueStart: { x: 170, y: 610 }
   },
   meat: {
-    shop: { x: 650, y: 820 },
-    unloadPoint: { x: 575, y: 820 },
-    stockPile: { x: 650, y: 750 },
-    coinPile: { x: 650, y: 890 },
-    workerPoint: { x: 575, y: 890 },
+    shop: { x: 645, y: 900 },
+    unloadPoint: { x: 570, y: 920 },
+    stockPile: { x: 645, y: 830 },
+    coinPile: { x: 645, y: 970 },
+    workerPoint: { x: 540, y: 1000 },
     queueStart: { x: 650, y: 980 }
   },
   ore: {
-    shop: { x: 550, y: 720 },
-    unloadPoint: { x: 550, y: 845 },
-    stockPile: { x: 512, y: 785 },
-    coinPile: { x: 588, y: 785 },
-    workerPoint: { x: 630, y: 845 },
+    shop: { x: 540, y: 695 },
+    unloadPoint: { x: 500, y: 815 },
+    stockPile: { x: 502, y: 760 },
+    coinPile: { x: 578, y: 760 },
+    workerPoint: { x: 625, y: 780 },
     queueStart: { x: 550, y: 610 }
   }
+};
+
+export const workerResourcePoints: Record<ShopKind, ScenePoint> = {
+  wood: { x: 115, y: 620 },
+  meat: { x: 650, y: 1060 },
+  ore: { x: 610, y: 300 }
 };
 
 export const turretBases: Record<"left" | "right", ScenePoint> = {
