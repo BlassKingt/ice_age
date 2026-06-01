@@ -122,6 +122,7 @@ class IceAgeScene extends Phaser.Scene {
   private workerSprites: Partial<Record<ShopKind, Phaser.GameObjects.Container>> = {};
   private workerLastStock: Partial<Record<ShopKind, number>> = {};
   private workerHarvestCycle: Partial<Record<ShopKind, number>> = {};
+  private workerStartedAt: Partial<Record<ShopKind, number>> = {};
   private turrets: Phaser.GameObjects.Container[] = [];
   private promoMode = false;
   private promoStartedAt = 0;
@@ -797,11 +798,11 @@ class IceAgeScene extends Phaser.Scene {
         continue;
       }
       const layout = shopLayouts[kind];
-      const seconds = this.time.now / 1000;
-      const phase = this.workerRoutePhase(seconds);
+      const elapsed = Math.max(0, this.time.now / 1000 - (this.workerStartedAt[kind] ?? this.time.now / 1000));
+      const phase = this.workerRoutePhase(elapsed);
       const position = this.pointOnWorkerRoute(kind, phase.progress);
       worker.setPosition(position.x, position.y);
-      this.showWorkerHarvestAtSource(kind, worker, seconds, phase.atSource);
+      this.showWorkerHarvestAtSource(kind, worker, elapsed, phase.atSource);
       this.collectWorkerRoutePickups(worker);
       const previousStock = this.workerLastStock[kind] ?? stockBefore[kind];
       const currentStock = this.state.shops[kind].stock;
@@ -820,7 +821,7 @@ class IceAgeScene extends Phaser.Scene {
         continue;
       }
       const kind = pickup.resource;
-      const collectRadius = kind === "meat" ? 150 : 56;
+      const collectRadius = kind === "meat" ? 72 : 56;
       if (Phaser.Math.Distance.Between(worker.x, worker.y, pickup.icon.x, pickup.icon.y) > collectRadius) {
         continue;
       }
@@ -1186,6 +1187,7 @@ class IceAgeScene extends Phaser.Scene {
     worker.add(this.makeResourceToken(kind, 18, -20, 0.42));
     this.workerSprites[kind] = worker;
     this.workerLastStock[kind] = this.state.shops[kind].stock;
+    this.workerStartedAt[kind] = this.time.now / 1000;
   }
 
   private createTurret(point: Point): void {

@@ -28,7 +28,7 @@ export type GameState = {
 };
 
 const emptyBundle = (): ResourceBundle => ({ wood: 0, meat: 0, ore: 0, coin: 0 });
-const workerCarryAmount: Record<ShopKind, number> = { wood: 2, meat: 1, ore: 1 };
+const workerCarryAmount: Record<ShopKind, number> = { wood: 2, meat: 1, ore: 3 };
 const workerCarrySeconds = 4;
 
 export function splitDropsIntoUnits(bundle: ResourceBundle): UnitDrop[] {

@@ -166,6 +166,17 @@ describe("ice age demo game logic", () => {
     expect(state.workers[0].cycles).toBe(0);
   });
 
+  it("ore workers carry enough ore to make the stock pile visible", () => {
+    const state = createInitialState();
+    state.player.coin = 20;
+    state.shops.ore.unlocked = true;
+
+    expect(buyWorker(state, "ore")).toBe(true);
+    tickWorker(state, 4);
+
+    expect(state.shops.ore.stock).toBe(3);
+  });
+
   it("每个已解锁铺子最多雇佣一个工人，不能重复雇佣", () => {
     const state = createInitialState();
     state.player.coin = 100;
