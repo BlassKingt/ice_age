@@ -29,6 +29,7 @@ export type GameState = {
 
 const emptyBundle = (): ResourceBundle => ({ wood: 0, meat: 0, ore: 0, coin: 0 });
 const workerCarryAmount: Record<ShopKind, number> = { wood: 2, meat: 1, ore: 1 };
+const workerCarrySeconds = 3;
 
 export function splitDropsIntoUnits(bundle: ResourceBundle): UnitDrop[] {
   const result: UnitDrop[] = [];
@@ -246,11 +247,11 @@ export function tickWorker(state: GameState, seconds: number): void {
       continue;
     }
     worker.cycles += seconds;
-    const deliveries = Math.floor(worker.cycles);
+    const deliveries = Math.floor(worker.cycles / workerCarrySeconds);
     if (deliveries <= 0) {
       continue;
     }
-    worker.cycles -= deliveries;
+    worker.cycles -= deliveries * workerCarrySeconds;
     if (Math.abs(worker.cycles) < 0.0001) {
       worker.cycles = 0;
     }

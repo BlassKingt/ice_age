@@ -146,7 +146,7 @@ describe("ice age demo game logic", () => {
     state.player.coin = 20;
 
     expect(buyWorker(state, "wood")).toBe(true);
-    tickWorker(state, 1);
+    tickWorker(state, 3);
 
     expect(state.shops.wood.stock).toBe(2);
     expect(state.shops.wood.coinPile).toBe(0);
@@ -158,7 +158,7 @@ describe("ice age demo game logic", () => {
     state.player.coin = 20;
 
     expect(buyWorker(state, "wood")).toBe(true);
-    tickWorker(state, 0.4);
+    tickWorker(state, 2.4);
     expect(state.shops.wood.stock).toBe(0);
 
     tickWorker(state, 0.6);

@@ -28,6 +28,7 @@ const VIEW_WIDTH = 540;
 const VIEW_HEIGHT = 960;
 const SHELTER_CENTER_X = 360;
 const SHELTER_ATTACK_POINT = { x: SHELTER_CENTER_X, y: 610 };
+const WORKER_ROUTE_SECONDS = 6;
 
 type Point = { x: number; y: number };
 
@@ -120,6 +121,7 @@ class IceAgeScene extends Phaser.Scene {
   private bears: BearView[] = [];
   private workerSprites: Partial<Record<ShopKind, Phaser.GameObjects.Container>> = {};
   private workerLastStock: Partial<Record<ShopKind, number>> = {};
+  private workerHarvestCycle: Partial<Record<ShopKind, number>> = {};
   private turrets: Phaser.GameObjects.Container[] = [];
   private promoMode = false;
   private promoStartedAt = 0;
@@ -795,11 +797,14 @@ class IceAgeScene extends Phaser.Scene {
         continue;
       }
       const layout = shopLayouts[kind];
-      const t = (this.time.now / 1000) % 3;
-      const p = (t % 1.5) / 1.5;
-      const eased = t < 1.5 ? p : 1 - p;
+      const seconds = this.time.now / 1000;
+      const t = seconds % WORKER_ROUTE_SECONDS;
+      const halfRoute = WORKER_ROUTE_SECONDS / 2;
+      const p = (t % halfRoute) / halfRoute;
+      const eased = t < halfRoute ? p : 1 - p;
       const position = this.pointOnWorkerRoute(kind, eased);
       worker.setPosition(position.x, position.y);
+      this.showWorkerHarvestAtSource(kind, worker, seconds);
       this.collectWorkerRoutePickups(worker);
       const previousStock = this.workerLastStock[kind] ?? stockBefore[kind];
       const currentStock = this.state.shops[kind].stock;
@@ -845,6 +850,31 @@ class IceAgeScene extends Phaser.Scene {
       x: Phaser.Math.Linear(from.x, to.x, local),
       y: Phaser.Math.Linear(from.y, to.y, local)
     };
+  }
+
+  private showWorkerHarvestAtSource(kind: ShopKind, worker: Phaser.GameObjects.Container, seconds: number): void {
+    const cycle = Math.floor(seconds / WORKER_ROUTE_SECONDS);
+    const routeProgress = (seconds % WORKER_ROUTE_SECONDS) / WORKER_ROUTE_SECONDS;
+    if (routeProgress > 0.08 || this.workerHarvestCycle[kind] === cycle) {
+      return;
+    }
+    this.workerHarvestCycle[kind] = cycle;
+    const source = workerResourcePoints[kind];
+    this.burst(source.x, source.y, this.resourceColor(kind));
+    for (let i = 0; i < 3; i += 1) {
+      const token = this.makeResourceToken(kind, source.x + Phaser.Math.Between(-18, 18), source.y + Phaser.Math.Between(-10, 10), 0.62);
+      token.setDepth(1000);
+      this.tweens.add({
+        targets: token,
+        x: worker.x + 18,
+        y: worker.y - 20,
+        scaleX: 0.48,
+        scaleY: 0.48,
+        duration: 280 + i * 80,
+        ease: "Cubic.easeInOut",
+        onComplete: () => token.destroy()
+      });
+    }
   }
 
   private updateBears(time: number, delta: number): void {
