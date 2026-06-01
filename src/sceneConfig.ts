@@ -39,9 +39,15 @@ export const shopLayouts: Record<ShopKind, ShopLayout> = {
 };
 
 export const workerResourcePoints: Record<ShopKind, ScenePoint> = {
-  wood: { x: 115, y: 620 },
-  meat: { x: 650, y: 1060 },
+  wood: { x: 115, y: 170 },
+  meat: { x: 610, y: 500 },
   ore: { x: 610, y: 300 }
+};
+
+export const workerRoutes: Record<ShopKind, ScenePoint[]> = {
+  wood: [workerResourcePoints.wood, { x: 360, y: 585 }, shopLayouts.wood.unloadPoint],
+  meat: [workerResourcePoints.meat, { x: 360, y: 585 }, shopLayouts.meat.unloadPoint],
+  ore: [workerResourcePoints.ore, { x: 360, y: 585 }, shopLayouts.ore.unloadPoint]
 };
 
 export const turretBases: Record<"left" | "right", ScenePoint> = {

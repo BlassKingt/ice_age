@@ -20,7 +20,7 @@ import {
 } from "./gameLogic";
 import { buildStackBlocks } from "./visualStack";
 import { createFallbackTextures, TextureKey } from "./visualAssets";
-import { shelterExpansion, shopLayouts, turretBases, workerResourcePoints } from "./sceneConfig";
+import { shelterExpansion, shopLayouts, turretBases, workerResourcePoints, workerRoutes } from "./sceneConfig";
 
 const WORLD_WIDTH = 720;
 const WORLD_HEIGHT = 1320;
@@ -795,14 +795,11 @@ class IceAgeScene extends Phaser.Scene {
         continue;
       }
       const layout = shopLayouts[kind];
-      const source = workerResourcePoints[kind];
       const t = (this.time.now / 1000) % 3;
       const p = (t % 1.5) / 1.5;
       const eased = t < 1.5 ? p : 1 - p;
-      worker.setPosition(
-        Phaser.Math.Linear(source.x, layout.unloadPoint.x, eased),
-        Phaser.Math.Linear(source.y, layout.unloadPoint.y, eased)
-      );
+      const position = this.pointOnWorkerRoute(kind, eased);
+      worker.setPosition(position.x, position.y);
       this.collectWorkerRoutePickups(worker);
       const previousStock = this.workerLastStock[kind] ?? stockBefore[kind];
       const currentStock = this.state.shops[kind].stock;
@@ -833,6 +830,21 @@ class IceAgeScene extends Phaser.Scene {
       pickup.icon.destroy();
       this.pickups = this.pickups.filter((item) => item !== pickup);
     }
+  }
+
+  private pointOnWorkerRoute(kind: ShopKind, progress: number): Point {
+    const route = workerRoutes[kind];
+    const segmentCount = route.length - 1;
+    const scaled = Phaser.Math.Clamp(progress, 0, 1) * segmentCount;
+    const index = Math.min(segmentCount - 1, Math.floor(scaled));
+    const local = scaled - index;
+    const from = route[index];
+    const to = route[index + 1];
+
+    return {
+      x: Phaser.Math.Linear(from.x, to.x, local),
+      y: Phaser.Math.Linear(from.y, to.y, local)
+    };
   }
 
   private updateBears(time: number, delta: number): void {
