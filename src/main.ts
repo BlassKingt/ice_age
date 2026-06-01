@@ -123,6 +123,8 @@ class IceAgeScene extends Phaser.Scene {
   private workerLastStock: Partial<Record<ShopKind, number>> = {};
   private workerHarvestCycle: Partial<Record<ShopKind, number>> = {};
   private workerStartedAt: Partial<Record<ShopKind, number>> = {};
+  private workerCarried: Partial<Record<ShopKind, number>> = {};
+  private workerUnloadCycle: Partial<Record<ShopKind, number>> = {};
   private turrets: Phaser.GameObjects.Container[] = [];
   private promoMode = false;
   private promoStartedAt = 0;
@@ -797,13 +799,18 @@ class IceAgeScene extends Phaser.Scene {
       if (!worker) {
         continue;
       }
+      const startAt = this.workerStartedAt[kind] ?? this.time.now / 1000;
+      if (this.time.now / 1000 < startAt) {
+        continue;
+      }
       const layout = shopLayouts[kind];
-      const elapsed = Math.max(0, this.time.now / 1000 - (this.workerStartedAt[kind] ?? this.time.now / 1000));
+      const elapsed = Math.max(0, this.time.now / 1000 - startAt);
       const phase = this.workerRoutePhase(elapsed);
       const position = this.pointOnWorkerRoute(kind, phase.progress);
       worker.setPosition(position.x, position.y);
       this.showWorkerHarvestAtSource(kind, worker, elapsed, phase.atSource);
       this.collectWorkerRoutePickups(worker);
+      this.unloadWorkerCarried(kind, worker, elapsed, phase.atUnload);
       const previousStock = this.workerLastStock[kind] ?? stockBefore[kind];
       const currentStock = this.state.shops[kind].stock;
       if (currentStock > previousStock) {
@@ -828,11 +835,31 @@ class IceAgeScene extends Phaser.Scene {
       if (!this.state.shops[kind].unlocked) {
         continue;
       }
-      this.state.shops[kind].stock += pickup.amount;
-      this.flyResource(kind, pickup.amount, { x: pickup.icon.x, y: pickup.icon.y }, shopLayouts[kind].stockPile);
+      this.workerCarried[kind] = (this.workerCarried[kind] ?? 0) + pickup.amount;
+      this.flyResource(kind, pickup.amount, { x: pickup.icon.x, y: pickup.icon.y }, { x: worker.x + 18, y: worker.y - 20 });
       this.floatText(pickup.icon.x, pickup.icon.y - 28, `工人搬走 +${pickup.amount}`, "#ffffff");
       pickup.icon.destroy();
       this.pickups = this.pickups.filter((item) => item !== pickup);
+    }
+  }
+
+  private unloadWorkerCarried(kind: ShopKind, worker: Phaser.GameObjects.Container, elapsed: number, atUnload: boolean): void {
+    const cycle = Math.floor(elapsed / WORKER_ROUTE_SECONDS);
+    if (!atUnload || this.workerUnloadCycle[kind] === cycle) {
+      return;
+    }
+    this.workerUnloadCycle[kind] = cycle;
+    for (const resource of ["wood", "meat", "ore"] as ShopKind[]) {
+      const amount = this.workerCarried[resource] ?? 0;
+      if (amount <= 0 || !this.state.shops[resource].unlocked) {
+        continue;
+      }
+      this.workerCarried[resource] = 0;
+      this.state.shops[resource].stock += amount;
+      this.workerLastStock[resource] = this.state.shops[resource].stock;
+      this.flyResource(resource, amount, { x: worker.x + 18, y: worker.y - 20 }, shopLayouts[resource].stockPile);
+      this.floatText(shopLayouts[resource].unloadPoint.x, shopLayouts[resource].unloadPoint.y - 34, `卸货 +${amount}`, "#ffffff");
+      this.burst(shopLayouts[resource].stockPile.x, shopLayouts[resource].stockPile.y, this.resourceColor(resource));
     }
   }
 
@@ -851,18 +878,18 @@ class IceAgeScene extends Phaser.Scene {
     };
   }
 
-  private workerRoutePhase(seconds: number): { progress: number; atSource: boolean } {
+  private workerRoutePhase(seconds: number): { progress: number; atSource: boolean; atUnload: boolean } {
     const t = seconds % WORKER_ROUTE_SECONDS;
     if (t < 1) {
-      return { progress: 0, atSource: true };
+      return { progress: 0, atSource: true, atUnload: false };
     }
     if (t < 4) {
-      return { progress: (t - 1) / 3, atSource: false };
+      return { progress: (t - 1) / 3, atSource: false, atUnload: false };
     }
     if (t < 5) {
-      return { progress: 1, atSource: false };
+      return { progress: 1, atSource: false, atUnload: true };
     }
-    return { progress: 1 - (t - 5) / 3, atSource: false };
+    return { progress: 1 - (t - 5) / 3, atSource: false, atUnload: false };
   }
 
   private showWorkerHarvestAtSource(kind: ShopKind, worker: Phaser.GameObjects.Container, seconds: number, atSource: boolean): void {
@@ -1181,13 +1208,21 @@ class IceAgeScene extends Phaser.Scene {
   }
 
   private createWorker(kind: ShopKind): void {
+    const layout = shopLayouts[kind];
     const source = workerResourcePoints[kind];
-    const worker = this.add.container(source.x, source.y);
+    const worker = this.add.container(layout.workerPoint.x, layout.workerPoint.y);
     worker.add(this.add.image(0, 0, TextureKey.worker));
     worker.add(this.makeResourceToken(kind, 18, -20, 0.42));
     this.workerSprites[kind] = worker;
     this.workerLastStock[kind] = this.state.shops[kind].stock;
-    this.workerStartedAt[kind] = this.time.now / 1000;
+    this.workerStartedAt[kind] = this.time.now / 1000 + 0.75;
+    this.tweens.add({
+      targets: worker,
+      x: source.x,
+      y: source.y,
+      duration: 720,
+      ease: "Cubic.easeInOut"
+    });
   }
 
   private createTurret(point: Point): void {
